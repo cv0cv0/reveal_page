@@ -7,9 +7,9 @@ import 'pages.dart';
 class Indicator extends StatelessWidget {
   const Indicator({
     Key key,
-    this.currentIndex = 1,
+    this.currentIndex,
     this.nextIndex,
-    this.percent = 0.0,
+    this.percent,
   }) : super(key: key);
 
   final int currentIndex;
@@ -19,22 +19,28 @@ class Indicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Align(
         alignment: Alignment.bottomCenter,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: factories
-              .asMap()
-              .map((i, factory) => MapEntry(
-                  i,
-                  _Bubble(
-                    iconPath: factory.indicatorIconPath,
-                    iconColor: factory.color,
-                    isHollow: i > currentIndex,
-                    percent: i == currentIndex
-                        ? 1 - percent
-                        : i == nextIndex ? percent : 0.0,
-                  )))
-              .values
-              .toList(),
+        child: Transform(
+          transform: Matrix4.translationValues(
+              (factories.length * 40) / 2 - (nextIndex * 40 * percent) - 20,
+              0.0,
+              0.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: factories
+                .asMap()
+                .map((i, factory) => MapEntry(
+                    i,
+                    _Bubble(
+                      iconPath: factory.indicatorIconPath,
+                      iconColor: factory.color,
+                      isHollow: i > nextIndex,
+                      percent: i == currentIndex
+                          ? percent == 1 ? 1.0 : 1 - percent
+                          : i == nextIndex ? percent : 0.0,
+                    )))
+                .values
+                .toList(),
+          ),
         ),
       );
 }
@@ -59,10 +65,14 @@ class _Bubble extends StatelessWidget {
         height: lerpDouble(20.0, 45.0, percent),
         margin: const EdgeInsets.all(10.0),
         decoration: BoxDecoration(
-          color: isHollow ? null : Colors.white.withAlpha(0x88),
+          color: isHollow
+              ? Colors.white.withAlpha((0x88 * percent).round())
+              : Colors.white.withAlpha(0x88),
           shape: BoxShape.circle,
           border: isHollow
-              ? Border.all(color: Colors.white.withAlpha(0x88), width: 3.0)
+              ? Border.all(
+                  color: Colors.white.withAlpha((0x88 * (1 - percent)).round()),
+                  width: 3.0)
               : null,
         ),
         child: Opacity(
