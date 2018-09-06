@@ -46,7 +46,8 @@ class Page extends StatelessWidget {
               Transform(
                 transform:
                     Matrix4.translationValues(0.0, (1.0 - opacity) * 50.0, 0.0),
-                child: Image.asset(factory.heroIconPath, width: 200.0, height: 200.0),
+                child: Image.asset(factory.heroIconPath,
+                    width: 200.0, height: 200.0),
               ),
               SizedBox(height: 35.0),
               Transform(
@@ -64,10 +65,13 @@ class Page extends StatelessWidget {
               Transform(
                 transform:
                     Matrix4.translationValues(0.0, (1.0 - opacity) * 30.0, 0.0),
-                child: Text(
-                  factory.body,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white, fontSize: 18.0),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                  child: Text(
+                    factory.body,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white, fontSize: 18.0),
+                  ),
                 ),
               ),
               SizedBox(height: 75.0),
