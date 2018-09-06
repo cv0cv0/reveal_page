@@ -12,12 +12,13 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final dragStream = StreamController<Drag>();
 
   int currentIndex = 0;
   int nextIndex = 0;
   double percent = 0.0;
+  AxisDirection direction;
 
   @override
   void initState() {
@@ -29,11 +30,16 @@ class _HomePageState extends State<HomePage> {
       if (newIndex < 0 || newIndex >= factories.length) return;
 
       setState(() {
-        percent = drag.percent;
-        if (percent < 1)
+        if (drag.status == Status.update) {
+          direction = drag.direction;
           nextIndex = newIndex;
-        else
+          percent = drag.percent;
+        } else if (drag.status == Status.end) {
           currentIndex = nextIndex;
+          percent = 0.0;
+        } else {
+          nextIndex = currentIndex;
+        }
       });
     });
   }
@@ -44,15 +50,20 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             Page(factory: factories[currentIndex], opacity: 1.0),
             Reveal(
+              direction: direction,
               percent: percent,
               child: Page(factory: factories[nextIndex], opacity: percent),
             ),
             Indicator(
               currentIndex: currentIndex,
               nextIndex: nextIndex,
+              direction: direction,
               percent: percent,
             ),
-            Dragger(dragStream),
+            Dragger(
+              stream: dragStream,
+              vsync: this,
+            ),
           ],
         ),
       );

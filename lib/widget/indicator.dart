@@ -9,11 +9,13 @@ class Indicator extends StatelessWidget {
     Key key,
     this.currentIndex,
     this.nextIndex,
+    this.direction,
     this.percent,
   }) : super(key: key);
 
   final int currentIndex;
   final int nextIndex;
+  final AxisDirection direction;
   final double percent;
 
   @override
@@ -21,7 +23,10 @@ class Indicator extends StatelessWidget {
         alignment: Alignment.bottomCenter,
         child: Transform(
           transform: Matrix4.translationValues(
-              (factories.length * 40) / 2 - (nextIndex * 40 * percent) - 20,
+              factories.length * 40 / 2 -
+                  20 -
+                  currentIndex * 40 +
+                  (direction == AxisDirection.left ? -40 : 40) * percent,
               0.0,
               0.0),
           child: Row(
@@ -35,7 +40,7 @@ class Indicator extends StatelessWidget {
                       iconColor: factory.color,
                       isHollow: i > nextIndex,
                       percent: i == currentIndex
-                          ? percent == 1 ? 1.0 : 1 - percent
+                          ? 1 - percent
                           : i == nextIndex ? percent : 0.0,
                     )))
                 .values
