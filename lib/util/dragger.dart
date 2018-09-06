@@ -55,7 +55,7 @@ class _DraggerState extends State<Dragger> {
 
   void onDragEnd(DragEndDetails details) {
     startOffset = null;
-    if (percent == 0) return;
+    if (percent == 0 || percent == 1) return;
 
     final isCancel = percent < 0.3;
     controller = AnimationController(
