@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 const dragPx = 300.0;
-const dither = 5.0;
 const animationMilliseconds = 500;
 
 class Dragger extends StatefulWidget {
@@ -41,13 +40,11 @@ class _DraggerState extends State<Dragger> {
     if (startOffset == null) return;
 
     final dx = details.globalPosition.dx - startOffset.dx;
-    if (dx.abs() < dither) return;
-
-    direction = dx > 0 ? AxisDirection.right : AxisDirection.left;
+    direction = dx >= 0 ? AxisDirection.right : AxisDirection.left;
     percent = (dx / dragPx).abs().clamp(0.0, 1.0);
 
     widget.stream.add(Drag(
-      status: percent == 1 ? Status.end : Status.update,
+      status: Status.update,
       direction: direction,
       percent: percent,
     ));
@@ -55,39 +52,53 @@ class _DraggerState extends State<Dragger> {
 
   void onDragEnd(DragEndDetails details) {
     startOffset = null;
-    if (percent == 0 || percent == 1) return;
 
-    final isCancel = percent < 0.3;
-    controller = AnimationController(
-      value: percent,
-      duration: Duration(
-          milliseconds:
-              ((isCancel ? percent : 1 - percent) * animationMilliseconds)
-                  .round()),
-      vsync: widget.vsync,
-    )
-      ..addListener(() {
-        widget.stream.add(Drag(
-          status: Status.update,
-          direction: direction,
-          percent: lerpDouble(percent, isCancel ? 0.0 : 1.0, controller.value),
-        ));
-      })
-      ..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
+    if (percent == 0) {
+      widget.stream.add(Drag(
+        status: Status.cancel,
+        direction: direction,
+        percent: percent,
+      ));
+    } else if (percent == 1) {
+      widget.stream.add(Drag(
+        status: Status.end,
+        direction: direction,
+        percent: percent,
+      ));
+    } else {
+      final isCancel = percent < 0.3;
+      controller = AnimationController(
+        value: percent,
+        duration: Duration(
+            milliseconds:
+                ((isCancel ? percent : 1 - percent) * animationMilliseconds)
+                    .round()),
+        vsync: widget.vsync,
+      )
+        ..addListener(() {
           widget.stream.add(Drag(
-            status: isCancel ? Status.cancel : Status.end,
+            status: Status.update,
             direction: direction,
             percent:
                 lerpDouble(percent, isCancel ? 0.0 : 1.0, controller.value),
           ));
-          controller.dispose();
-          animating = false;
-        }
-      });
+        })
+        ..addStatusListener((status) {
+          if (status == AnimationStatus.completed) {
+            widget.stream.add(Drag(
+              status: isCancel ? Status.cancel : Status.end,
+              direction: direction,
+              percent:
+                  lerpDouble(percent, isCancel ? 0.0 : 1.0, controller.value),
+            ));
+            controller.dispose();
+            animating = false;
+          }
+        });
 
-    controller.forward();
-    animating = true;
+      controller.forward();
+      animating = true;
+    }
   }
 }
 

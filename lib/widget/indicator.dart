@@ -11,12 +11,14 @@ class Indicator extends StatelessWidget {
     this.nextIndex,
     this.direction,
     this.percent,
+    this.paddingBottom,
   }) : super(key: key);
 
   final int currentIndex;
   final int nextIndex;
   final AxisDirection direction;
   final double percent;
+  final double paddingBottom;
 
   @override
   Widget build(BuildContext context) => Align(
@@ -42,6 +44,7 @@ class Indicator extends StatelessWidget {
                       percent: i == currentIndex
                           ? 1 - percent
                           : i == nextIndex ? percent : 0.0,
+                      paddingBottom: paddingBottom,
                     )))
                 .values
                 .toList(),
@@ -57,18 +60,21 @@ class _Bubble extends StatelessWidget {
     this.iconColor,
     this.isHollow,
     this.percent,
+    this.paddingBottom,
   }) : super(key: key);
 
   final String iconPath;
   final Color iconColor;
   final bool isHollow;
   final double percent;
+  final double paddingBottom;
 
   @override
   Widget build(BuildContext context) => Container(
         width: lerpDouble(20.0, 45.0, percent),
         height: lerpDouble(20.0, 45.0, percent),
-        margin: const EdgeInsets.all(10.0),
+        margin: EdgeInsets.symmetric(
+            horizontal: 10.0, vertical: paddingBottom == 0 ? 10.0 : 0.0),
         decoration: BoxDecoration(
           color: isHollow
               ? Colors.white.withAlpha((0x88 * percent).round())
