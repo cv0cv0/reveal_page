@@ -40,7 +40,9 @@ class _DraggerState extends State<Dragger> {
     if (startOffset == null) return;
 
     final dx = details.globalPosition.dx - startOffset.dx;
-    direction = dx >= 0 ? AxisDirection.right : AxisDirection.left;
+    if (dx == 0) return;
+
+    direction = dx > 0 ? AxisDirection.right : AxisDirection.left;
     percent = (dx / dragPx).abs().clamp(0.0, 1.0);
 
     widget.stream.add(Drag(

@@ -27,17 +27,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           if (drag.status == Status.update) {
             direction = drag.direction;
             percent = drag.percent;
-            nextIndex = (drag.direction == AxisDirection.left
-                    ? currentIndex + 1
-                    : currentIndex - 1)
-                .clamp(0, factories.length - 1);
+            nextIndex = drag.direction == AxisDirection.left
+                ? currentIndex + 1
+                : currentIndex - 1;
 
-            if ((currentIndex == 0 &&
-                    nextIndex == 0 &&
-                    direction == AxisDirection.right) ||
-                (currentIndex == factories.length - 1 &&
-                    nextIndex == factories.length - 1 &&
-                    direction == AxisDirection.left)) percent = 0.0;
+            if (nextIndex < 0) {
+              nextIndex = 0;
+              percent = 0.0;
+            } else if (nextIndex >= factories.length) {
+              nextIndex = factories.length - 1;
+              percent = 0.0;
+            }
           } else if (drag.status == Status.end) {
             currentIndex = nextIndex;
             percent = 0.0;
